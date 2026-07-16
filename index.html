@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="Icon.png" type="image/png">
+
+<title>Taxi Operator Toolkit</title>
+
+<style>
+body{
+    margin:0;
+    background:#0a0a0a;
+    font-family:Arial;
+    overflow:hidden;
+}
+
+.topbar{
+    height:60px;
+    background:#111;
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    gap:10px;
+    border-bottom:1px solid #222;
+}
+
+.tab-btn{
+    background:#1a1a1a;
+    color:#fff;
+    border:1px solid #333;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+    transition:0.2s;
+}
+
+.tab-btn:hover{
+    border-color:#ffcc00;
+}
+
+.tab-btn.active{
+    background:#ffcc00;
+    color:#000;
+}
+
+iframe{
+    width:100%;
+    height:calc(100vh - 60px);
+    border:none;
+    display:none;
+}
+
+iframe.active{
+    display:block;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <button class="tab-btn active" onclick="showTab('fareFrame', this)">
+        Fare Calculator
+    </button>
+
+    <button class="tab-btn" onclick="showTab('formatFrame', this)">
+        Booking Formatter
+    </button>
+
+    <!-- NEW BUTTON -->
+    <button class="tab-btn" onclick="showTab('packageFrame', this)">
+        Package Formatter
+    </button>
+</div>
+
+<iframe id="fareFrame" class="active" src="fare.html"></iframe>
+
+<iframe id="formatFrame" src="format.html"></iframe>
+
+<!-- NEW IFRAME -->
+<iframe id="packageFrame" src="package.html"></iframe>
+
+<script>
+function showTab(frameId, btn){
+
+    document.querySelectorAll("iframe").forEach(frame=>{
+        frame.classList.remove("active");
+    });
+
+    document.querySelectorAll(".tab-btn").forEach(button=>{
+        button.classList.remove("active");
+    });
+
+    document.getElementById(frameId).classList.add("active");
+
+    btn.classList.add("active");
+}
+</script>
+
+</body>
+</html>

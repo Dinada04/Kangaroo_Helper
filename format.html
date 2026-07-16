@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kangaroo Cabs | Booking Formatter</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+:root {
+    --bg: #0a0a0a;
+    --card: #141414;
+    --accent: #ffcc00; /* Kangaroo Yellow */
+    --text: #ffffff;
+    --text-dim: #888;
+    --border: #222;
+    --success: #28a745;
+    --danger: #ff4444;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    padding: 40px 20px;
+    overflow-x: hidden;
+}
+
+/* UI Frame Accents */
+.ui-frame {
+    position: fixed;
+    top: 15px; bottom: 15px; left: 15px; right: 15px;
+    border: 1px solid rgba(255, 204, 0, 0.05);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.corner {
+    position: absolute;
+    width: 15px; height: 15px;
+    border: 2px solid var(--accent);
+    opacity: 0.3;
+}
+.top-left { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.top-right { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.bottom-left { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+.bottom-right { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+.side-bar {
+    position: fixed;
+    left: 40px; top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    z-index: 5;
+    max-width: 200px;
+}
+
+.data-node { display: flex; flex-direction: column; gap: 5px; }
+.node-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
+.node-value { font-size: 13px; color: var(--accent); font-family: 'JetBrains Mono', monospace; line-height: 1.4; }
+.node-value.white { color: #fff; }
+.node-value.dim { color: #555; }
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin: 0;
+    color: var(--accent);
+}
+
+.subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 4px;
+    margin-top: 5px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.input-area {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+textarea {
+    width: 100%;
+    height: 45px;
+    background: #080808;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #ccc;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    resize: none;
+    box-sizing: border-box;
+    outline: none;
+    transition: 0.3s;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.1);
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+button.main-btn {
+    flex: 3;
+    padding: 15px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.2s;
+}
+
+button.clear-btn {
+    flex: 1;
+    padding: 15px;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.2s;
+}
+
+button.main-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);
+}
+
+button.clear-btn:hover {
+    background: rgba(255, 68, 68, 0.1);
+}
+
+.output-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.output-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #222;
+}
+
+.output-header h2 {
+    font-size: 12px;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+}
+
+.content-box {
+    background: #080808;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    min-height: 350px;
+    color: #ddd;
+    border: 1px solid #1a1a1a;
+}
+
+.copy-btn {
+    margin-top: 15px;
+    background: var(--accent);
+    color: #000;
+    border: 1px solid var(--accent);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: #e6b800;
+    border-color: #e6b800;
+}
+
+.copy-btn.copied-success {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+/* Developer Watermark */
+.watermark-container { 
+    position: fixed; 
+    bottom: 0; 
+    right: 0; 
+    background: #111; 
+    padding: 8px 15px; 
+    border-top-left-radius: 12px; 
+    border: 1px solid var(--border); 
+    z-index: 100; 
+}
+.watermark-text { 
+    font-size: 9px; 
+    color: var(--accent); 
+    font-weight: 800; 
+    letter-spacing: 1.5px; 
+    text-transform: uppercase; 
+    margin: 0; 
+}
+
+@media (max-width: 1100px) {
+    .side-bar { display: none; }
+}
+
+@media (max-width: 850px) {
+    .output-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="ui-frame">
+    <div class="corner top-left"></div><div class="corner top-right"></div>
+    <div class="corner bottom-left"></div><div class="corner bottom-right"></div>
+</div>
+
+<div class="side-bar">
+    <div class="data-node">
+        <span class="node-label">System Status</span>
+        <span class="node-value" style="color:var(--success)">● ONLINE / SECURE</span>
+    </div>
+    <div class="data-node">
+        <span class="node-label">Step 01</span>
+        <span class="node-value white">Open Booking Slip</span>
+    </div>
+    <div class="data-node">
+        <span class="node-label">Step 02</span>
+        <span class="node-value white">Select All [CTRL+A]</span>
+    </div>
+    <div class="data-node">
+        <span class="node-label">Step 03</span>
+        <span class="node-value white">Copy Text [CTRL+C]</span>
+    </div>
+    <div class="data-node">
+        <span class="node-label">Step 04</span>
+        <span class="node-value white">Paste & Process</span>
+    </div>
+    <div class="data-node">
+        <span class="node-label">Location Auth</span>
+        <span class="node-value dim">CMB-WEST-UNIT-01</span>
+    </div>
+</div>
+
+<div class="container">
+<header>
+<h1>Kangaroo Cabs</h1>
+<div class="subtitle">BOOKING DATA FORMATTER</div>
+</header>
+
+<div class="input-area">
+<textarea id="inputText" placeholder="Paste raw booking here..."></textarea>
+
+<div class="button-group">
+<button class="main-btn" onclick="generateOutputs()">
+<i data-lucide="zap" size="18"></i> Process Booking Data
+</button>
+<button class="clear-btn" onclick="clearData()">
+<i data-lucide="trash-2" size="18"></i> Clear
+</button>
+</div>
+</div>
+
+<div class="output-grid">
+<div class="output-card">
+<div class="output-header">
+<h2>Client Booking Info</h2>
+<i data-lucide="user" size="16" color="#888"></i>
+</div>
+
+<button class="copy-btn" id="btn-output1" onclick="copyText('output1', 'btn-output1')">
+<i data-lucide="copy" size="14"></i> COPY MESSAGE
+</button>
+
+<div id="output1" class="content-box">Awaiting data...</div>
+</div>
+
+<div class="output-card">
+<div class="output-header">
+<h2>Chauffeur Details</h2>
+<i data-lucide="truck" size="16" color="#888"></i>
+</div>
+
+<button class="copy-btn" id="btn-output2" onclick="copyText('output2', 'btn-output2')">
+<i data-lucide="copy" size="14"></i> COPY MESSAGE
+</button>
+
+<div id="output2" class="content-box">Awaiting data...</div>
+</div>
+</div>
+
+</div>
+
+<div class="watermark-container">
+<p class="watermark-text">Dev: Dinada Balasuriya</p>
+</div>
+
+<script>
+lucide.createIcons();
+
+function extractValue(text, label){
+    const regex = new RegExp(label + "\\s*:?\\s*(.*)");
+    const match = text.match(regex);
+    return match ? match[1].trim() : "";
+}
+
+function clearData() {
+    document.getElementById("inputText").value = "";
+    document.getElementById("output1").innerText = "Awaiting data...";
+    document.getElementById("output2").innerText = "Awaiting data...";
+}
+
+function generateOutputs(){
+    const text = document.getElementById("inputText").value;
+    if(!text.trim()) return;
+
+    const refMatch = text.match(/Ref ID\s*([\w\d]+)\s*•\s*(.*)/);
+    const bookingReference = refMatch ? refMatch[1] : "";
+    const vehicleType = refMatch ? refMatch[2] : "";
+
+    const bookingTimeMatch = text.match(/RQ Date & Time\s*([0-9\/]+\s+[0-9:]+)/);
+    let bookingDate = "";
+    let bookingTime = "";
+
+    if(bookingTimeMatch){
+        const full = bookingTimeMatch[1];
+        const parts = full.split(" ");
+        bookingDate = parts[0];
+        bookingTime = parts[1];
+    }
+
+    const pickupLocation = extractValue(text, "Pick up location");
+
+    const driverMatch = text.match(/Name\s+Cab No.*\n([\w]+)/);
+    const driverName = driverMatch ? driverMatch[1].trim() : "";
+
+    const mobileMatch = text.match(/([0-9]{10})/g);
+    const driverMobile = mobileMatch ? mobileMatch[mobileMatch.length - 1] : "";
+
+    let vehicleNo = "";
+    let vehicleModel = "";
+
+    const vehicleLineMatch = text.match(/Category\s+Vehicle No\s+Cash Discount\s+Model\s*\n([\s\S]*?)\n/);
+
+    if(vehicleLineMatch){
+        const line = vehicleLineMatch[1].trim();
+        const parts = line.split(/\s{2,}|\t/).filter(Boolean);
+        if(parts.length >= 2){
+            vehicleNo = parts[1];
+        }
+        const modelIndex = line.indexOf(vehicleNo);
+        if(modelIndex !== -1){
+            vehicleModel = line.substring(modelIndex + vehicleNo.length).replace('---', '').trim();
+        }
+    }
+
+    const output1 = `Dear Valued Client,
+
+Thank you for booking with Kangaroo Cabs. Please find the details of your booking below:
+
+Booking Reference : ${bookingReference}
+Type of Vehicle : ${vehicleType}
+Booking Time : ${bookingTime}
+Booking Date : ${bookingDate}
+Pickup Location : ${pickupLocation}
+
+Thank you and kind regards,
+Kangaroo Cabs
+
+Website: http://www.kangaroocabs.com/
+Phone: 0112 501 501
+Email: bookings@2501501.com
+Address: No 485, 7/A, Gunawardena Mawatha, Wijerama,Nugegoda, 10250 Colombo, Sri Lanka`;
+
+    const output2 = `Dear Valued Client,
+
+Thank you for booking with Kangaroo Cabs. Please find the Chauffeur details of your booking below:
+
+Booking Reference : ${bookingReference}
+Driver Name : ${driverName}
+Driver Mobile : ${driverMobile}
+Vehicle Number : ${vehicleNo}
+Vehicle Model & Color : ${vehicleModel}
+
+Thank you and kind regards,
+Kangaroo Cabs
+
+Website: http://www.kangaroocabs.com/
+Phone: 0112 501 501
+Email: bookings@2501501.com
+Address: No 485, 7/A, Gunawardena Mawatha, Wijerama,Nugegoda, 10250 Colombo, Sri Lanka`;
+
+    document.getElementById("output1").innerText = output1;
+    document.getElementById("output2").innerText = output2;
+}
+
+function copyText(contentId, buttonId){
+    const text = document.getElementById(contentId).innerText;
+    if(text.includes("Awaiting")) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(buttonId);
+        btn.classList.add('copied-success');
+        btn.innerHTML = `<i data-lucide="check" size="14"></i> COPIED`;
+        lucide.createIcons();
+
+        setTimeout(() => {
+            btn.classList.remove('copied-success');
+            btn.innerHTML = `<i data-lucide="copy" size="14"></i> COPY MESSAGE`;
+            lucide.createIcons();
+        }, 1500);
+    });
+}
+</script>
+
+</body>
+</html>
