@@ -69,6 +69,6 @@ if (Object.values(firebaseConfig).concat(ADMIN_EMAIL).some(v => String(v).includ
         });
     }
 
-    window.CloudPricing = { signIn, save, retry: subscribe, signOut: () => signOut(auth) };
+    window.CloudPricing = { signIn, save, retry: subscribe, signOut: () => signOut(auth), uid: () => auth.currentUser ? auth.currentUser.uid : null };
     subscribe();
 }

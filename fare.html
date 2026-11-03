@@ -621,7 +621,9 @@ async function saveRates() {
             loadSettings();
             showAdminMsg("Another admin changed " + err.keys.map(k => rates[k].name).join(", ") + " first. The latest rates are loaded. Review and save again.");
         } else if (err.code === "permission-denied" || err.code === "unauth") {
-            authenticated = false; showAdminMsg("Not authorised to publish. Close this panel and unlock Admin Access again.");
+            authenticated = false;
+            const uid = window.CloudPricing && window.CloudPricing.uid ? window.CloudPricing.uid() : null;
+            showAdminMsg("Not authorised to publish. Error: " + err.code + ". Signed-in user ID: " + (uid || "none") + ". " + (err.message || "") + " Close this panel and unlock Admin Access again.");
         } else showAdminMsg("Could not save, nothing was changed. " + (err.message || ""));
     }
     btn.disabled = false; btn.textContent = "SAVE";
